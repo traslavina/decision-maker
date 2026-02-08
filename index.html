@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Decision Maker - Make Confident Decisions</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-8">
+    <div class="max-w-5xl mx-auto">
+      <!-- Header -->
+      <div class="text-center mb-12 mt-8">
+        <h1 class="text-4xl md:text-5xl font-semibold text-gray-900 mb-3 tracking-tight">
+          Decision Maker
+        </h1>
+        <p class="text-lg text-gray-500 font-normal">
+          Make confident decisions with clarity.
+        </p>
+      </div>
+
+      <!-- Decision Name -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 md:p-8 mb-6 transition-all hover:shadow-md">
+        <label class="block text-sm font-medium text-gray-700 mb-3">
+          Decision Name
+        </label>
+        <input
+          type="text"
+          id="decisionName"
+          placeholder="e.g., Hiring Decision, Vendor Selection"
+          class="w-full px-4 py-3 text-lg border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          value="Job Comparison"
+        />
+      </div>
+
+      <!-- Criteria Section -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6">
+        <div class="px-6 md:px-8 py-6">
+          <h2 class="text-xl font-semibold text-gray-900">Criteria & Weights</h2>
+          <p class="text-sm text-gray-500 mt-1 mb-4">What matters in this decision?</p>
+          
+          <div id="criteriaList" class="space-y-3 mb-4"></div>
+
+          <button
+            onclick="addCriterion()"
+            class="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center gap-2 font-medium"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Criterion
+          </button>
+        </div>
+      </div>
+
+      <!-- Options Section -->
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6">
+        <div class="px-6 md:px-8 py-6">
+          <h2 class="text-xl font-semibold text-gray-900">Options & Scores</h2>
+          <p class="text-sm text-gray-500 mt-1 mb-4">Rate each option per criterion</p>
+          
+          <div id="optionsList" class="space-y-6 mb-4"></div>
+
+          <button
+            onclick="addOption()"
+            class="w-full py-3 px-4 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-all flex items-center justify-center gap-2 font-medium"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Option
+          </button>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div id="resultsSection" class="bg-white rounded-2xl shadow-sm border border-gray-200 mb-6">
+        <div class="px-6 md:px-8 py-6">
+          <h2 class="text-xl font-semibold text-gray-900">Results</h2>
+          <p class="text-sm text-gray-500 mt-1 mb-4">Based on your weighting and scoring</p>
+          <div id="resultsList"></div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="text-center text-sm text-gray-500 mt-8 mb-4">
+        <p>All data stays in your browser. Nothing is saved or shared.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let criteria = [
+      { id: 1, name: 'Base Salary', weight: 4 },
+      { id: 2, name: 'Equity (RSUs)', weight: 4 },
+      { id: 3, name: 'Work-Life Balance', weight: 5 },
+      { id: 4, name: 'Growth Opportunity', weight: 5 },
+      { id: 5, name: 'Company Culture', weight: 5 }
+    ];
+
+    let options = [
+      { id: 1, name: 'Current Role', scores: { 1: 5, 2: 3, 3: 5, 4: 3, 5: 5 } },
+      { id: 2, name: 'Company B', scores: { 1: 4, 2: 5, 3: 4, 4: 5, 5: 5 } }
+    ];
+
+    let criterionIdCounter = 6;
+    let optionIdCounter = 3;
+
+    function addCriterion() {
+      const newCriterion = { id: criterionIdCounter++, name: '', weight: 3 };
+      criteria.push(newCriterion);
+      
+      // Add default score for this criterion to all options
+      options.forEach(opt => {
+        opt.scores[newCriterion.id] = 3;
+      });
+      
+      render();
+    }
+
+    function removeCriterion(id) {
+      criteria = criteria.filter(c => c.id !== id);
+      options.forEach(opt => {
+        delete opt.scores[id];
+      });
+      render();
+    }
+
+    function updateCriterion(id, field, value) {
+      const criterion = criteria.find(c => c.id === id);
+      if (criterion) {
+        criterion[field] = field === 'weight' ? parseInt(value) : value;
+        render();
+      }
+    }
+
+    function addOption() {
+      const scores = {};
+      criteria.forEach(c => { scores[c.id] = 3; });
+      options.push({ id: optionIdCounter++, name: '', scores });
+      render();
+    }
+
+    function removeOption(id) {
+      options = options.filter(o => o.id !== id);
+      render();
+    }
+
+    function updateOption(id, name) {
+      const option = options.find(o => o.id === id);
+      if (option) {
+        option.name = name;
+        render();
+      }
+    }
+
+    function updateScore(optionId, criterionId, score) {
+      const option = options.find(o => o.id === optionId);
+      if (option) {
+        option.scores[criterionId] = parseInt(score);
+        render();
+      }
+    }
+
+    function calculateResults() {
+      return options.map(option => {
+        const totalScore = criteria.reduce((sum, criterion) => {
+          return sum + (criterion.weight * (option.scores[criterion.id] || 0));
+        }, 0);
+        return { ...option, totalScore };
+      }).sort((a, b) => b.totalScore - a.totalScore);
+    }
+
+    function render() {
+      renderCriteria();
+      renderOptions();
+      renderResults();
+    }
+
+    function renderCriteria() {
+      const list = document.getElementById('criteriaList');
+      list.innerHTML = criteria.map(c => `
+        <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-xl transition-all hover:bg-gray-100">
+          <input
+            type="text"
+            value="${c.name}"
+            onchange="updateCriterion(${c.id}, 'name', this.value)"
+            placeholder="Criterion name"
+            class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          />
+          <div class="flex items-center gap-2">
+            <label class="text-sm text-gray-600 whitespace-nowrap">Weight:</label>
+            <select
+              onchange="updateCriterion(${c.id}, 'weight', this.value)"
+              class="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white min-w-[80px]"
+            >
+              <option value="1" ${c.weight === 1 ? 'selected' : ''}>1 - Low</option>
+              <option value="2" ${c.weight === 2 ? 'selected' : ''}>2</option>
+              <option value="3" ${c.weight === 3 ? 'selected' : ''}>3 - Mid</option>
+              <option value="4" ${c.weight === 4 ? 'selected' : ''}>4</option>
+              <option value="5" ${c.weight === 5 ? 'selected' : ''}>5 - High</option>
+            </select>
+          </div>
+          <button
+            onclick="removeCriterion(${c.id})"
+            class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function renderOptions() {
+      const list = document.getElementById('optionsList');
+      list.innerHTML = options.map(opt => `
+        <div class="border border-gray-200 rounded-xl p-5 bg-gray-50">
+          <div class="flex items-center gap-3 mb-4">
+            <input
+              type="text"
+              value="${opt.name}"
+              onchange="updateOption(${opt.id}, this.value)"
+              placeholder="Option name"
+              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-medium"
+            />
+            <button
+              onclick="removeOption(${opt.id})"
+              class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <div class="grid gap-3">
+            ${criteria.map(c => `
+              <div class="flex items-center justify-between gap-4 bg-white p-3 rounded-lg">
+                <span class="text-sm text-gray-700 flex-1">${c.name || 'Unnamed criterion'}</span>
+                <div class="flex items-center gap-2">
+                  <input
+                    type="range"
+                    min="1"
+                    max="5"
+                    value="${opt.scores[c.id] || 3}"
+                    oninput="updateScore(${opt.id}, ${c.id}, this.value)"
+                    class="w-24 accent-blue-500"
+                  />
+                  <span class="text-sm font-medium text-gray-900 w-12 text-center">
+                    ${opt.scores[c.id] || 3} / 5
+                  </span>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderResults() {
+      const results = calculateResults();
+      const maxScore = results.length > 0 ? results[0].totalScore : 0;
+      
+      const list = document.getElementById('resultsList');
+      list.innerHTML = results.map((result, index) => {
+        const isTop = index === 0;
+        const percentage = maxScore > 0 ? (result.totalScore / maxScore) * 100 : 0;
+        
+        return `
+          <div class="p-5 rounded-xl border-2 transition-all mb-3 ${isTop ? 'bg-blue-50 border-blue-500 shadow-sm' : 'bg-gray-50 border-gray-200'}">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-3">
+                ${isTop ? `
+                  <div class="p-2 bg-blue-500 rounded-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                      <circle cx="12" cy="8" r="7"></circle>
+                      <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+                    </svg>
+                  </div>
+                ` : ''}
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-900">${result.name}</h3>
+                  ${isTop ? '<span class="text-sm text-blue-600 font-medium">Recommended Choice</span>' : ''}
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="text-2xl font-bold text-gray-900">${result.totalScore}</div>
+                <div class="text-sm text-gray-500">total score</div>
+              </div>
+            </div>
+            
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full transition-all duration-500 ${isTop ? 'bg-blue-500' : 'bg-gray-400'}" style="width: ${percentage}%"></div>
+            </div>
+            
+            <div class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-2 text-xs">
+              ${criteria.map(c => {
+                const score = result.scores[c.id] || 0;
+                const weighted = c.weight * score;
+                return `
+                  <div class="bg-white px-2 py-1.5 rounded flex justify-between items-center">
+                    <span class="text-gray-600 truncate mr-2">${c.name}</span>
+                    <span class="font-medium text-gray-900">${weighted}</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+      
+      if (results.length > 1) {
+        list.innerHTML += `
+          <div class="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <div class="flex items-start gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-blue-500 mt-0.5">
+                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                <polyline points="17 6 23 6 23 12"></polyline>
+              </svg>
+              <div>
+                <h4 class="font-medium text-gray-900 mb-1">Confidence Note</h4>
+                <p class="text-sm text-gray-600">
+                  ${results[0].name} leads by ${results[0].totalScore - results[1].totalScore} points.
+                  ${results[0].totalScore - results[1].totalScore > 30 
+                    ? ' This is a clear frontrunner.' 
+                    : ' Consider if the criteria weights reflect your true priorities.'}
+                </p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // Initial render
+    render();
+  </script>
+</body>
+</html>
